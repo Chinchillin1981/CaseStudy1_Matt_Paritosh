@@ -12,13 +12,11 @@ library(downloader)
 library(dplyr)
 library(data.table)
 library(ggplot2)
-#read.csv("beers.csv", header = TRUE)
-#load(file = "beers.csv")
-#beers<-read.csv("C:\\Paritosh\\SMU\6306 Doing Data Science\\Case_Study_1\\CaseStudy1_Matt_Paritosh\\beers.csv")
-#brewires<-read.csv("Brewries.csv")
-#BrewCount <- brewires %>% count(brewires$State)
-#names(BrewCount)<-c("State","No. of Brewires")
-#kable(BrewCount,format = html)
+
+brewires<-read.csv("Brewries.csv")
+BrewCount <- brewires %>% count(brewires$State)
+names(BrewCount)<-c("State","No. of Brewires")
+kable(BrewCount,format = "html")
 
 ```
 
