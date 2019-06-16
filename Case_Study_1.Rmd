@@ -20,3 +20,62 @@ kable(BrewCount,format = "html")
 
 ```
 
+```{r}
+#read.csv("beers.csv")
+beers<-read.csv("beers.csv")
+beers_brew<-merge(data.frame(beers),data.frame(brewires), by.x = "Brewery_id",by.y="Brew_ID")
+kable(head(beers_brew),format = "html")
+
+kable(tail(beers_brew), format = "html")
+```
+
+
+```{r}
+#Total number of NA's in each column
+totalna <-colSums(is.na(beers_brew))
+kable(totalna, format = "html")
+```
+
+```{r}
+#Create a data frame with only states, BeerID, ABV, and IBU
+Mediantable <- data.frame(beers_brew$State,beers_brew$Beer_ID,beers_brew$ABV, beers_brew$IBU)
+
+#Omit the NA values from Medaintable
+MediantableNoNA <- na.omit(Mediantable, cols = c("beers_brew.ABV","beers_brew.IBU"), invert = FALSE)
+
+#Create a function to calculate Mean
+myFun <- function(x) { median = median(x)}
+
+#Use the function to calculate the median for each state and Turn BeerMedianIBU into a dataframe
+BeerMedianIBU <- as.data.frame.table(tapply(MediantableNoNA$beers_brew.IBU, MediantableNoNA$beers_brew.State, myFun))
+
+#Rename columns of BeerMedianIBU table
+names(BeerMedianIBU) <- c("State","Median_IBU")
+
+#Remove SD NA Value
+BeerMedianIBU <- BeerMedianIBU[-42,]
+
+#Plot MedianIBU with ggplot
+library(ggplot2)
+p<-ggplot(BeerMedianIBU ,aes(reorder(BeerMedianIBU$State,-Median_IBU),Median_IBU, fill=BeerMedianIBU$State)) + geom_bar(stat='identity')+ theme(text=element_text(size=7),plot.title = element_text(hjust = 0.5),legend.position="none", axis.text.x = element_text(angle = 90))+ ggtitle("Beer Mediun IBU Per State") + labs(x = "State", y = "Median IBU")
+
+#View Plot
+p
+```
+
+```{r}
+#Using the myFun Function calculate the Median ABV for each state and create a data frame
+BeerMedianABV <- as.data.frame.table(tapply(MediantableNoNA$beers_brew.ABV, MediantableNoNA$beers_brew.State, myFun))
+
+#Rename columns of BeerMedianABV table
+names(BeerMedianABV) <- c("State", "Median_ABV")
+
+#Remove NA Value SD
+
+#Plot Median ABV
+```
+
+```{r}
+#View The row
+kable(beers_brew[which.max(beers_brew$ABV),], format = "html")
+```
