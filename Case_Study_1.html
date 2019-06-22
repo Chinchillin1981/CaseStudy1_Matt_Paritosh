@@ -392,30 +392,15 @@ $(document).ready(function () {
 
 <pre class="r"><code>library(knitr)
 library(downloader)
-library(dplyr)</code></pre>
-<pre><code>## 
-## Attaching package: 'dplyr'</code></pre>
-<pre><code>## The following objects are masked from 'package:stats':
-## 
-##     filter, lag</code></pre>
-<pre><code>## The following objects are masked from 'package:base':
-## 
-##     intersect, setdiff, setequal, union</code></pre>
-<pre class="r"><code>library(data.table)</code></pre>
-<pre><code>## 
-## Attaching package: 'data.table'</code></pre>
-<pre><code>## The following objects are masked from 'package:dplyr':
-## 
-##     between, first, last</code></pre>
-<pre class="r"><code>library(ggplot2)
+library(dplyr)
+library(data.table)
+library(ggplot2)
 library(webshot)
 library(kableExtra)</code></pre>
-<pre><code>## 
-## Attaching package: 'kableExtra'</code></pre>
-<pre><code>## The following object is masked from 'package:dplyr':
-## 
-##     group_rows</code></pre>
-<pre class="r"><code>brewires&lt;-read.csv(&quot;Brewries.csv&quot;)
+<div id="calculating-the-number-of-breweries-in-each-state" class="section level4">
+<h4>Calculating the Number of Breweries in each state</h4>
+<pre class="r"><code>#Read in Brewries.csv file
+brewires&lt;-read.csv(&quot;Brewries.csv&quot;)
 BrewCount &lt;- brewires %&gt;% count(brewires$State)
 names(BrewCount)&lt;-c(&quot;State&quot;,&quot;No. of Brewires&quot;)
 
@@ -843,6 +828,9 @@ WY
 </tr>
 </tbody>
 </table>
+</div>
+<div id="merging-the-brewires-data-with-the-beers-data-into-a-new-table-beers_brew-will-allow-us-to-do-more-detailed-analysis-below-are-the-first-and-last-six-values-of-our-new-table." class="section level4">
+<h4>Merging the Brewires data with the Beers data into a new table “beers_brew” will allow us to do more detailed analysis below are the first and last six values of our new table.</h4>
 <pre class="r"><code>#read.csv(&quot;beers.csv&quot;)
 beers&lt;-read.csv(&quot;beers.csv&quot;)
 
@@ -850,7 +838,7 @@ beers&lt;-read.csv(&quot;beers.csv&quot;)
 beers_brew&lt;-merge(data.frame(beers),data.frame(brewires), by.x = &quot;Brewery_id&quot;,by.y=&quot;Brew_ID&quot;)
 
 #Update Column names
-names(beers_brew) &lt;- c(&quot;Brewery_ID&quot;, &quot;Beer&quot;, &quot;Beer_ID&quot;, &quot;ABV&quot;, &quot;IBU&quot;, &quot;Beer_Syle&quot;, &quot;Ounces&quot;, &quot;Brewry_Name&quot;, &quot;City&quot;, &quot;State&quot;)
+names(beers_brew) &lt;- c(&quot;Brewery_ID&quot;, &quot;Beer&quot;, &quot;Beer_ID&quot;, &quot;ABV&quot;, &quot;IBU&quot;, &quot;Beer_Style&quot;, &quot;Ounces&quot;, &quot;Brewery_Name&quot;, &quot;City&quot;, &quot;State&quot;)
 
 #First six observation
 (head(beers_brew) %&gt;% kable() %&gt;% kable_styling(bootstrap_options = c(&quot;striped&quot;, &quot;hover&quot;, &quot;condensed&quot;, &quot;responsive&quot;)))</code></pre>
@@ -873,13 +861,13 @@ ABV
 IBU
 </th>
 <th style="text-align:left;">
-Beer_Syle
+Beer_Style
 </th>
 <th style="text-align:right;">
 Ounces
 </th>
 <th style="text-align:left;">
-Brewry_Name
+Brewery_Name
 </th>
 <th style="text-align:left;">
 City
@@ -1105,13 +1093,13 @@ ABV
 IBU
 </th>
 <th style="text-align:left;">
-Beer_Syle
+Beer_Style
 </th>
 <th style="text-align:right;">
 Ounces
 </th>
 <th style="text-align:left;">
-Brewry_Name
+Brewery_Name
 </th>
 <th style="text-align:left;">
 City
@@ -1316,6 +1304,9 @@ AK
 </tr>
 </tbody>
 </table>
+</div>
+<div id="we-need-to-find-any-nullna-data-in-our-new-table-the-calculation-below-tells-us-how-many-observations-are-nullna-in-each-variable." class="section level4">
+<h4>We need to find any null/NA data in our new table the calculation below tells us how many observations are null/NA in each variable.</h4>
 <pre class="r"><code>#Total number of NA's in each column
 totalna &lt;-colSums(is.na(beers_brew))
 
@@ -1375,7 +1366,7 @@ IBU
 </tr>
 <tr>
 <td style="text-align:left;">
-Beer_Syle
+Beer_Style
 </td>
 <td style="text-align:right;">
 0
@@ -1391,7 +1382,7 @@ Ounces
 </tr>
 <tr>
 <td style="text-align:left;">
-Brewry_Name
+Brewery_Name
 </td>
 <td style="text-align:right;">
 0
@@ -1415,6 +1406,10 @@ State
 </tr>
 </tbody>
 </table>
+<pre class="r"><code>#pie chart space</code></pre>
+</div>
+<div id="below-is-the-median-alchol-content-for-each-state." class="section level4">
+<h4>Below is the median alchol content for each state.</h4>
 <pre class="r"><code>#Create a data frame with only states, BeerID, ABV, and IBU
 Mediantable &lt;- data.frame(beers_brew$State,beers_brew$Beer_ID,beers_brew$ABV, beers_brew$IBU)
 
@@ -1449,15 +1444,14 @@ names(BeerMedianABV) &lt;- c(&quot;State&quot;, &quot;Median_ABV&quot;)
 #Remove NA Value SD
 
 #Plot Median ABV</code></pre>
+</div>
 <div id="colorado-is-the-state-with-the-highest-alcohol-beer-in-the-us.-the-beer-is-lee-hill-vol.5---belgian-style-quadrupel-ale-the-abv-is-.128-13-alcohol-content.-this-beer-is-prodcuced-by-uposlope-brewing-company." class="section level4">
 <h4>Colorado is the state with the highest alcohol beer in the US. The beer is “Lee Hill Vol.5 - Belgian Style Quadrupel Ale” the ABV is .128 (13% alcohol content). This beer is prodcuced by Uposlope Brewing Company.</h4>
 <pre class="r"><code>#View The row for maximum ABV value (Alcohol content)
-kable(beers_brew[which.max(beers_brew$ABV),], format = &quot;html&quot;)</code></pre>
-<table>
+beers_brew[which.max(beers_brew$ABV),] %&gt;% kable(row.names = FALSE) %&gt;% kable_styling(bootstrap_options = c(&quot;striped&quot;, &quot;hover&quot;, &quot;condensed&quot;, &quot;responsive&quot;))</code></pre>
+<table class="table table-striped table-hover table-condensed table-responsive" style="margin-left: auto; margin-right: auto;">
 <thead>
 <tr>
-<th style="text-align:left;">
-</th>
 <th style="text-align:right;">
 Brewery_ID
 </th>
@@ -1474,13 +1468,13 @@ ABV
 IBU
 </th>
 <th style="text-align:left;">
-Beer_Syle
+Beer_Style
 </th>
 <th style="text-align:right;">
 Ounces
 </th>
 <th style="text-align:left;">
-Brewry_Name
+Brewery_Name
 </th>
 <th style="text-align:left;">
 City
@@ -1492,9 +1486,6 @@ State
 </thead>
 <tbody>
 <tr>
-<td style="text-align:left;">
-375
-</td>
 <td style="text-align:right;">
 52
 </td>
@@ -1532,20 +1523,18 @@ CO
 <div id="orgon-is-the-state-with-the-bitterest-beer-bitter-bitch-imperial-ipa-this-beer-is-138-ibu-and-an-american-doubleimperial-ipa-style.-the-brewery-that-produces-this-beer-is-astroria-brewing-company." class="section level4">
 <h4>Orgon is the state with the Bitterest Beer “Bitter Bitch Imperial IPA” this beer is 138 IBU and an American Double/Imperial IPA style. The brewery that produces this beer is Astroria Brewing Company.</h4>
 <pre class="r"><code>#View the row with max IBU value (bitterness)
-kable(beers_brew[which.max(beers_brew$IBU),], format = &quot;html&quot;, col.names = c(&quot;Brewery ID&quot;, &quot;Beer&quot;, &quot;Beer ID&quot;, &quot;ABV&quot;, &quot;IBU&quot;, &quot;Beer Syle&quot;, &quot;Ounces&quot;, &quot;Brewry Name&quot;, &quot;City&quot;, &quot;State&quot;))</code></pre>
-<table>
+beers_brew[which.max(beers_brew$IBU),] %&gt;% kable(row.names = FALSE) %&gt;% kable_styling(bootstrap_options = c(&quot;striped&quot;, &quot;hover&quot;, &quot;condensed&quot;, &quot;responsive&quot;))</code></pre>
+<table class="table table-striped table-hover table-condensed table-responsive" style="margin-left: auto; margin-right: auto;">
 <thead>
 <tr>
-<th style="text-align:left;">
-</th>
 <th style="text-align:right;">
-Brewery ID
+Brewery_ID
 </th>
 <th style="text-align:left;">
 Beer
 </th>
 <th style="text-align:right;">
-Beer ID
+Beer_ID
 </th>
 <th style="text-align:right;">
 ABV
@@ -1554,13 +1543,13 @@ ABV
 IBU
 </th>
 <th style="text-align:left;">
-Beer Syle
+Beer_Style
 </th>
 <th style="text-align:right;">
 Ounces
 </th>
 <th style="text-align:left;">
-Brewry Name
+Brewery_Name
 </th>
 <th style="text-align:left;">
 City
@@ -1572,9 +1561,6 @@ State
 </thead>
 <tbody>
 <tr>
-<td style="text-align:left;">
-1857
-</td>
 <td style="text-align:right;">
 375
 </td>
@@ -1614,13 +1600,13 @@ OR
 <pre class="r"><code>#Summarise the ABV variable in the beer_brew table
 ABVSummary &lt;- summary(beers_brew$ABV)
 
-#Create table 
-kable(as.array(ABVSummary), format = &quot;html&quot;, col.names = c(&quot;Statistic&quot;, &quot;Value&quot;))</code></pre>
-<table>
+#Create table
+as.array(ABVSummary) %&gt;% kable(col.names = c(&quot;Measure&quot;,&quot;Value&quot;)) %&gt;% kable_styling(bootstrap_options = c(&quot;striped&quot;, &quot;hover&quot;, &quot;condensed&quot;, &quot;responsive&quot;))</code></pre>
+<table class="table table-striped table-hover table-condensed table-responsive" style="margin-left: auto; margin-right: auto;">
 <thead>
 <tr>
 <th style="text-align:left;">
-Statistic
+Measure
 </th>
 <th style="text-align:right;">
 Value
