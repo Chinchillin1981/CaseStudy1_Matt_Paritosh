@@ -12,28 +12,44 @@ library(downloader)
 library(dplyr)
 library(data.table)
 library(ggplot2)
+library(webshot)
+library(kableExtra)
 
 brewires<-read.csv("Brewries.csv")
 BrewCount <- brewires %>% count(brewires$State)
 names(BrewCount)<-c("State","No. of Brewires")
-kable(BrewCount,format = "html")
 
+#Create styled table
+BrewCount %>% kable() %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
 ```
 
 ```{r}
 #read.csv("beers.csv")
 beers<-read.csv("beers.csv")
-beers_brew<-merge(data.frame(beers),data.frame(brewires), by.x = "Brewery_id",by.y="Brew_ID")
-kable(head(beers_brew),format = "html")
 
-kable(tail(beers_brew), format = "html")
+#Merge beers and Brewieres data frames into beers_brew
+beers_brew<-merge(data.frame(beers),data.frame(brewires), by.x = "Brewery_id",by.y="Brew_ID")
+
+#Update Column names
+names(beers_brew) <- c("Brewery_ID", "Beer", "Beer_ID", "ABV", "IBU", "Beer_Syle", "Ounces", "Brewry_Name", "City", "State")
+
+#First six observation
+(head(beers_brew) %>% kable() %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")))
+```
+
+```{r}
+#Last six observation
+tail(beers_brew) %>% kable(row.names = FALSE) %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
 ```
 
 
 ```{r}
 #Total number of NA's in each column
 totalna <-colSums(is.na(beers_brew))
-kable(totalna, format = "html")
+
+
+#Create table of NA Vales
+totalna %>% kable(col.names = c("Number_of_NA")) %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
 ```
 
 ```{r}
@@ -75,7 +91,27 @@ names(BeerMedianABV) <- c("State", "Median_ABV")
 #Plot Median ABV
 ```
 
+
+#### Colorado is the state with the highest alcohol beer in the US. The beer is "Lee Hill Vol.5 - Belgian Style Quadrupel Ale" the ABV is .128 (13% alcohol content). This beer is prodcuced by Uposlope Brewing Company.
 ```{r}
-#View The row
+#View The row for maximum ABV value (Alcohol content)
 kable(beers_brew[which.max(beers_brew$ABV),], format = "html")
+```
+
+
+#### Orgon is the state with the Bitterest Beer "Bitter Bitch Imperial IPA" this beer is 138 IBU and an American Double/Imperial IPA style. The brewery that produces this beer is Astroria Brewing Company.
+```{r}
+#View the row with max IBU value (bitterness)
+kable(beers_brew[which.max(beers_brew$IBU),], format = "html", col.names = c("Brewery ID", "Beer", "Beer ID", "ABV", "IBU", "Beer Syle", "Ounces", "Brewry Name", "City", "State"))
+                                                                             
+                                                                            
+```
+
+#### ABV summary stats 
+```{r}
+#Summarise the ABV variable in the beer_brew table
+ABVSummary <- summary(beers_brew$ABV)
+
+#Create table 
+kable(as.array(ABVSummary), format = "html", col.names = c("Statistic", "Value"))
 ```
