@@ -1,6 +1,6 @@
 ---
-title: "Case_Study _1"
-author: "Matt_Paritosh"
+title: "Beers and Breweries an analysis of US Craft Beers"
+author: "Matt Chinchilla, Paritosh Ria"
 date: "6/15/2019"
 output: html_document
 Keep_md: TRUE
@@ -17,15 +17,22 @@ library(kableExtra)
 ```
 
 
-#### Calculating the Number of Breweries in each state
+#### Number of Breweries in each state. Note the list is in a scroll box, scroll to see more values.
 ```{r}
 #Read in Brewries.csv file
 brewires<-read.csv("Brewries.csv")
+
+#Create a data frame BrewCount with the calculated count of the number of brewries in each state.
 BrewCount <- brewires %>% count(brewires$State)
+
+#Update the names of the BrewCount data frame to "State" and "No. of Brewries"
 names(BrewCount)<-c("State","No. of Brewires")
 
-#Create styled table
-BrewCount %>% kable() %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+#Rearrange the counts in descending order
+BrewCount <- arrange(BrewCount, desc(BrewCount$`No. of Brewires`))
+
+#Display the Counts in a styled table
+kable(BrewCount) %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"), fixed_thead = TRUE, full_width = FALSE, position = "left") %>% scroll_box(width = "150%", height = "500px")
 ```
 
 
@@ -57,7 +64,7 @@ totalna <-colSums(is.na(beers_brew))
 
 
 #Create table of NA Vales
-totalna %>% kable(col.names = c("Number_of_NA")) %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+totalna %>% kable(col.names = c("Number_of_NA")) %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"), full_width = FALSE, position = "left")
 ```
 
 ```{r}
@@ -65,52 +72,73 @@ totalna %>% kable(col.names = c("Number_of_NA")) %>% kable_styling(bootstrap_opt
 ```
 
 
-#### Below is the median alchol content for each state. 
+#### The median alcholic content for each craft beer in each state and the District of Columbia is in the bar chart below. 
 ```{r}
-#Create a data frame with only states, BeerID, ABV, and IBU
-Mediantable <- data.frame(beers_brew$State,beers_brew$Beer_ID,beers_brew$ABV, beers_brew$IBU)
+#Create a new data frame ABV. 
+ABV <- data.frame(beers_brew$Beer_ID, beers_brew$State, beers_brew$ABV)
 
-#Omit the NA values from Medaintable
-MediantableNoNA <- na.omit(Mediantable, cols = c("beers_brew.ABV","beers_brew.IBU"), invert = FALSE)
+#Update the column names of ABV to Beer ID, State, and ABV.
+names(ABV) <- c("Beer_ID","State","ABV")
 
-#Create a function to calculate Mean
+#Remove any null values in the new table.
+ABV <- na.omit(ABV)
+
+#Create a function to calculate the median.
 myFun <- function(x) { median = median(x)}
 
-#Use the function to calculate the median for each state and Turn BeerMedianIBU into a dataframe
-BeerMedianIBU <- as.data.frame.table(tapply(MediantableNoNA$beers_brew.IBU, MediantableNoNA$beers_brew.State, myFun))
+#Create a new dataframe Median ABV. The function will be used to calculate median ABV per-state.
+MedianABV <- as.data.frame.table(tapply(ABV$ABV, ABV$State, myFun))
 
-#Rename columns of BeerMedianIBU table
-names(BeerMedianIBU) <- c("State","Median_IBU")
+#Update the column names of MedianABV to State and Median ABV.
+names(MedianABV) <- c("State","Median_ABV")
 
-#Remove SD NA Value
-BeerMedianIBU <- BeerMedianIBU[-42,]
+#Build a Bar chart to compare the median ABV per-state
+p<-ggplot(MedianABV ,aes(reorder(MedianABV$State,-Median_ABV),Median_ABV, fill= MedianABV$State)) + geom_bar(stat='identity')+ theme(text=element_text(size=10),plot.title = element_text(hjust = 0.5),legend.position="none", axis.text.x = element_text(angle = 90))+ ggtitle("Median ABV Per-State") + labs(x = "State", y = "ABV")
 
-#Plot MedianIBU with ggplot
-library(ggplot2)
-p<-ggplot(BeerMedianIBU ,aes(reorder(BeerMedianIBU$State,-Median_IBU),Median_IBU, fill=BeerMedianIBU$State)) + geom_bar(stat='identity')+ theme(text=element_text(size=7),plot.title = element_text(hjust = 0.5),legend.position="none", axis.text.x = element_text(angle = 90))+ ggtitle("Beer Mediun IBU Per State") + labs(x = "State", y = "Median IBU")
-
-#View Plot
 p
 ```
 
+
+#### The median IBU bitterness for each craft beer in each state and the District of Columbia is in the bar chart below. Note SD is not listed because the IBU data was not available for the beers in this state.
 ```{r}
-#Using the myFun Function calculate the Median ABV for each state and create a data frame
-BeerMedianABV <- as.data.frame.table(tapply(MediantableNoNA$beers_brew.ABV, MediantableNoNA$beers_brew.State, myFun))
+#Create a new data frame IBU. 
+IBU <- data.frame(beers_brew$Beer_ID, beers_brew$State, beers_brew$IBU)
 
-#Rename columns of BeerMedianABV table
-names(BeerMedianABV) <- c("State", "Median_ABV")
+#Update the column names of IBU to Beer ID, State, and IBU.
+names(IBU) <- c("Beer_ID","State","IBU")
 
-#Remove NA Value SD
+#Remove any null values in the new table.
+IBU <- na.omit(IBU)
 
-#Plot Median ABV
+#Create a function to calculate the median.
+myFun <- function(x) { median = median(x)}
+
+#Create a new dataframe Median IBU. The function will be used to calculate median IBU per-state.
+MedianIBU <- as.data.frame.table(tapply(IBU$IBU, IBU$State, myFun))
+
+#Update the column names of MedianIBU to State and Median IBU.
+names(MedianIBU) <- c("State","Median_IBU")
+
+#Remove SD because it does not have a median value
+MedianIBU <- na.omit(MedianIBU)
+
+#Build a Bar chart to compare the median IBU per-state
+p1<-ggplot(MedianIBU ,aes(reorder(MedianIBU$State,-Median_IBU),Median_IBU, fill= MedianIBU$State)) + geom_bar(stat='identity')+ theme(text=element_text(size=10),plot.title = element_text(hjust = 0.5),legend.position="none", axis.text.x = element_text(angle = 90))+ ggtitle("Median IBU Per-State") + labs(x = "State", y = "IBU")
+
+p1
 ```
 
 
-#### Colorado is the state with the highest alcohol beer in the US. The beer is "Lee Hill Vol.5 - Belgian Style Quadrupel Ale" the ABV is .128 (13% alcohol content). This beer is prodcuced by Uposlope Brewing Company.
+
+
+
+#### Colorado is the state with the beer with the highest alcohol content in the US. Lee Hill Vol.5 - Belgian Style Quadrupel Ale has an ABV of .128 (13% alcohol content). This beer is prodcuced by Uposlope Brewing Company.
 ```{r}
 #View The row for maximum ABV value (Alcohol content)
 beers_brew[which.max(beers_brew$ABV),] %>% kable(row.names = FALSE) %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
 ```
+
+
 
 
 #### Orgon is the state with the Bitterest Beer "Bitter Bitch Imperial IPA" this beer is 138 IBU and an American Double/Imperial IPA style. The brewery that produces this beer is Astroria Brewing Company.
