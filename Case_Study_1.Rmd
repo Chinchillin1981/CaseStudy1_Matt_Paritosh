@@ -42,21 +42,6 @@ kable(BrewCount) %>% kable_styling(bootstrap_options = c("striped", "hover", "co
 
 ```
 
-```{r}
-BrewCount1<-BrewCount
-BrewCount1<-data.frame(BrewCount1)
-head(BrewCount1)
-
-pb<-ggplot(BrewCount ,aes(reorder(BrewCount1$State,-BrewCount1$No..of.Brewires),y=BrewCount1$No..of.Brewires,  fill=BrewCount1$State))+
-  geom_bar(stat='identity')+
-  theme(text=element_text(size=7),plot.title = element_text(hjust = 0.5),legend.position="none", axis.text.x = element_text(angle = 90))+ 
-  ggtitle("Brewires Per State") + 
-  labs(x = "State", y = "Brewires per State")
-
-#View Plot
-pb
-```
-
 #### Merging the Brewires data with the Beers data into a new table "beers_brew" will allow us to do more detailed analysis below are the first and last six values of our new table.
 ```{r}
 #read.csv("beers.csv")
@@ -88,22 +73,20 @@ totalna <-colSums(is.na(beers_brew))
 totalna %>% kable(col.names = c("Number_of_NA")) %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"), full_width = FALSE, position = "left")
 ```
 
+
+#### The pie chart below shows the number of NA values 
 ```{r}
-#beers_brew
-#totalna <-colSums(is.na(beers_brew))
 totalna1<-data.frame(totalna)
 totalna1 <- cbind(Row.Names = rownames(totalna1), totalna1)
-totalna1
 colnames(totalna1)<-c("Variables","Number_of_NA")
-totalna1
+
 
 # Add label position
 totalna1 <- totalna1 %>%
   #arrange(desc(class)) %>%
   mutate(lab.ypos = cumsum(Number_of_NA) - 0.5*Number_of_NA)
-#totalna1
 
-mycols <- c("#868686FF", "#0073C2FF","#0073C2FF","#0073C2FF", "#EFC000FF", "#0073C2FF", "#0073C2FF","#0073C2FF","#0073C2FF","#0073C2FF")
+mycols <- c("#868686FF","#0073C2FF", "#0073C2FF","#0073C2FF","#0073C2FF","#0073C2FF", "#0073C2FF","#EFC000FF","#0073C2FF","#0073C2FF")
 
 ggplot(totalna1, aes(x = "", y = Number_of_NA, fill =Variables)) +
   geom_bar(width = 1, stat = "identity", color = "white") +
@@ -112,13 +95,7 @@ ggplot(totalna1, aes(x = "", y = Number_of_NA, fill =Variables)) +
   scale_fill_manual(values = mycols) +
   ggtitle("Number of NA")+
   theme_void()
-
-
 ```
-
-
-```
-
 
 #### The median alcholic content for each craft beer in each state and the District of Columbia is in the bar chart below. 
 ```{r}
@@ -195,11 +172,28 @@ beers_brew[which.max(beers_brew$IBU),] %>% kable(row.names = FALSE) %>% kable_st
 ```
  
 
-#### ABV summary stats 
-```{r}
+#### Summary statistics for Alcoholic content. 
+```{r, message= FALSE}
 #Summarise the ABV variable in the beer_brew table
 ABVSummary <- summary(beers_brew$ABV)
 
 #Create table
-as.array(ABVSummary) %>% kable(col.names = c("Measure","Value")) %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+as.array(ABVSummary) %>% kable(col.names = c("Measure","Value")) %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"), full_width = FALSE, position = "left")
+```
+
+#### The scatter plot below shows the relationship between alcohol content (ABV) in each beer and bitterness. As you can see the plot shows that the higher alcohol content the more likely the beer is to have a higher bitterness (IBU)
+```{r}
+#Create an new dataframe ABV_IBU that consists of Beer ID, ABV, IBU, Beer Style, Ounces
+ABV_IBU <- data.frame(beers_brew$Beer_ID,beers_brew$ABV, beers_brew$IBU, beers_brew$Beer_Style, beers_brew$Ounces)
+
+#rename the columns of the new data frame to "Beer_ID", "ABV", "IBU"
+names(ABV_IBU) <- c("Beer_ID", "ABV", "IBU", "Beer_Style","Ounces")
+
+#Create a scatter plot 
+p3 <- ggplot(ABV_IBU, aes(ABV,IBU, color = IBU)) + geom_point(aes(size = Ounces)) + labs(title = "Alchol Content vs Bitterness", x = "Alcohol Content (ABV)", y = "Bitterness (IBU)")
+
+#Add the Color gradient scale blue = low Bitterness, high = high bitterness
+p4 <-p3 + scale_color_gradient(low = "blue", high = "green")
+
+p4
 ```
