@@ -14,6 +14,12 @@ library(data.table)
 library(ggplot2)
 library(webshot)
 library(kableExtra)
+library(maps)
+library(mapdata)
+library(tidyverse)
+library(stringr)
+library(dplyr)
+library(viridis)
 ```
 
 
@@ -33,8 +39,23 @@ BrewCount <- arrange(BrewCount, desc(BrewCount$`No. of Brewires`))
 
 #Display the Counts in a styled table
 kable(BrewCount) %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"), fixed_thead = TRUE, full_width = FALSE, position = "left") %>% scroll_box(width = "150%", height = "500px")
+
 ```
 
+```{r}
+BrewCount1<-BrewCount
+BrewCount1<-data.frame(BrewCount1)
+head(BrewCount1)
+
+pb<-ggplot(BrewCount ,aes(reorder(BrewCount1$State,-BrewCount1$No..of.Brewires),y=BrewCount1$No..of.Brewires,  fill=BrewCount1$State))+
+  geom_bar(stat='identity')+
+  theme(text=element_text(size=7),plot.title = element_text(hjust = 0.5),legend.position="none", axis.text.x = element_text(angle = 90))+ 
+  ggtitle("Brewires Per State") + 
+  labs(x = "State", y = "Brewires per State")
+
+#View Plot
+pb
+```
 
 #### Merging the Brewires data with the Beers data into a new table "beers_brew" will allow us to do more detailed analysis below are the first and last six values of our new table.
 ```{r}
@@ -68,7 +89,34 @@ totalna %>% kable(col.names = c("Number_of_NA")) %>% kable_styling(bootstrap_opt
 ```
 
 ```{r}
-#pie chart space
+#beers_brew
+#totalna <-colSums(is.na(beers_brew))
+totalna1<-data.frame(totalna)
+totalna1 <- cbind(Row.Names = rownames(totalna1), totalna1)
+totalna1
+colnames(totalna1)<-c("Variables","Number_of_NA")
+totalna1
+
+# Add label position
+totalna1 <- totalna1 %>%
+  #arrange(desc(class)) %>%
+  mutate(lab.ypos = cumsum(Number_of_NA) - 0.5*Number_of_NA)
+#totalna1
+
+mycols <- c("#868686FF", "#0073C2FF","#0073C2FF","#0073C2FF", "#EFC000FF", "#0073C2FF", "#0073C2FF","#0073C2FF","#0073C2FF","#0073C2FF")
+
+ggplot(totalna1, aes(x = "", y = Number_of_NA, fill =Variables)) +
+  geom_bar(width = 1, stat = "identity", color = "white") +
+  coord_polar("y", start = 0)+
+  geom_text(aes(y = lab.ypos, label = Number_of_NA), color = "blue")+
+  scale_fill_manual(values = mycols) +
+  ggtitle("Number of NA")+
+  theme_void()
+
+
+```
+
+
 ```
 
 
@@ -99,6 +147,7 @@ p
 ```
 
 
+
 #### The median IBU bitterness for each craft beer in each state and the District of Columbia is in the bar chart below. Note SD is not listed because the IBU data was not available for the beers in this state.
 ```{r}
 #Create a new data frame IBU. 
@@ -127,8 +176,6 @@ p1<-ggplot(MedianIBU ,aes(reorder(MedianIBU$State,-Median_IBU),Median_IBU, fill=
 
 p1
 ```
-
-
 
 
 
