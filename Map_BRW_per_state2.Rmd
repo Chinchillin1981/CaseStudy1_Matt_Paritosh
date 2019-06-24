@@ -1,0 +1,88 @@
+---
+title: "bw_state"
+author: "Paritosh Rai"
+date: "6/23/2019"
+output: html_document
+---
+
+```{r message=FALSE, warning=FALSE, include=TRUE}
+library(maps)
+library(mapdata)
+library(tidyverse)
+library(ggplot2)
+library(stringr)
+library(viridis)
+library(dplyr)
+library(usmap)
+
+#Read in Brewries.csv file
+brewires<-read.csv("Brewries.csv")
+
+#Create a data frame BrewCount with the calculated count of the number of brewries in each state.
+BrewCount <- brewires %>% count(brewires$State)
+
+#Update the names of the BrewCount data frame to "State" and "No. of Brewries"
+names(BrewCount)<-c("State","No. of Brewires")
+
+#Rearrange the counts in descending order
+BrewCount <- arrange(BrewCount, desc(BrewCount$`No. of Brewires`))
+
+
+#plot us map using states file 
+#keep fill value to "0" so fill values remains numerical
+data(usmap)
+States_Map<-ggplot(us_map("states")) + 
+  geom_polygon(aes(x = long, y = lat, fill = 0, group = group), color = "white") + 
+  coord_quickmap() #+
+#guides(fill = FALSE) 
+#States_Map
+#View(us_map("state"))
+state_name_abb<-read.csv("https://raw.githubusercontent.com/Chinchillin1981/CaseStudy1_Matt_Paritosh/a5e17a7b0820dcee785e006653d05874465fc2e7/state_name_abb.csv", header=FALSE,sep=",")
+#head(state_name_abb)
+#str(state_name_abb)
+#View(state_name_abb)
+#convert to data frame
+state_name_abb<-data.frame(state_name_abb)
+#str(state_list)
+#str(BrewCount)
+#str(state_name_abb)
+#head(BrewCount)
+BrewCount2<-within(BrewCount,V2<- substring(BrewCount$State,2,3))
+#head(BrewCount)
+#head(state_name_abb)
+#head(BrewCount2)
+#Merge BrewCount and state_name_abb table with state.abbState
+BrewCount_M<-merge(data.frame(BrewCount2),data.frame(state_name_abb),by.x="V2",by.y="V2")
+#view the merger
+#head(BrewCount_M)
+#Change all charater in state name to lower cast as map file use lower case for statename
+#BrewCount_M<-within(BrewCount_M,l_state<-tolower(V1))
+#verify the converstion
+#head(BrewCount_M)
+#head(states)
+#merge the BrewCount_M file with state map files using state full name
+#head(us_map("states"))
+US_State_Brew<-merge(data.frame(us_map("states")),data.frame(BrewCount_M),by.x = "full",by.y="V1")
+#Verify the merger
+#head(US_State_Brew)
+
+#Plot the map
+#comment out guide so we get the legent
+state_brew_map<-States_Map  +
+  geom_polygon(data = US_State_Brew,aes(x = long, y = lat, fill = No..of.Brewires , group = group),color = "white") +
+  #guides(fill=FALSE) +
+  ggtitle("Breweries per State")
+  theme_void()
+#state_brew_map 
+#put map with log scale
+state_brew_map1<-state_brew_map+
+  scale_fill_gradientn(colours = rev(rainbow(7)),
+                       breaks = c(2, 4, 10, 100, 1000, 10000))#,
+                      trans = "log10"
+
+state_brew_map1
+
+
+```
+
+

@@ -1,0 +1,108 @@
+---
+title: "Map_ABV"
+author: "Paritosh Rai"
+date: "6/23/2019"
+output: html_document
+---
+
+
+
+```{r message=FALSE, warning=FALSE, include=TRUE}
+library(maps)
+library(mapdata)
+library(tidyverse)
+library(ggplot2)
+library(stringr)
+library(viridis)
+library(dplyr)
+library(usmap)
+
+#read.csv("beers.csv")
+beers<-read.csv("beers.csv")
+#Read in Brewries.csv file
+brewires<-read.csv("Brewries.csv")
+#Merge beers and Brewieres data frames into beers_brew
+beers_brew<-merge(data.frame(beers),data.frame(brewires), by.x = "Brewery_id",by.y="Brew_ID")
+#Create a new data frame ABV. 
+ABV <- data.frame(beers_brew$Beer_ID, beers_brew$State, beers_brew$ABV)
+
+#Update the column names of ABV to Beer ID, State, and ABV.
+names(ABV) <- c("Beer_ID","State","ABV")
+
+#Remove any null values in the new table.
+ABV <- na.omit(ABV)
+
+#Create a function to calculate the median.
+myFun <- function(x) { median = median(x)}
+
+#Create a new dataframe Median ABV. The function will be used to calculate median ABV per-state.
+MedianABV <- as.data.frame.table(tapply(ABV$ABV, ABV$State, myFun))
+#head(MedianABV)
+
+#plot us map using states file 
+#keep fill value to "0" so fill values remains numerical
+data(us_map(region="states"))
+
+States_Map<-ggplot(us_map("states")) + 
+  geom_polygon(aes(x = long, y = lat, fill = 0, group = group), color = "white") + 
+  coord_quickmap() #+
+#guides(fill = FALSE) 
+#States_Map
+#View(us_map("state"))
+state_name_abb<-read.csv("https://raw.githubusercontent.com/Chinchillin1981/CaseStudy1_Matt_Paritosh/a5e17a7b0820dcee785e006653d05874465fc2e7/state_name_abb.csv", header=FALSE,sep=",")
+#head(state_name_abb)
+#str(state_name_abb)
+#View(state_name_abb)
+#convert to data frame
+state_name_abb<-data.frame(state_name_abb)
+#head(state_name_abb)
+MedianABV1<-MedianABV
+#str(MedianABV1)
+#str(state_name_abb)
+#head(MedianABV1)
+#convert to data form
+MedianABV1<-data.frame(MedianABV1)
+#head(MedianABV1)
+#remove the blanks
+MedianABV1<-within(MedianABV1,V2<- substring(MedianABV1$Var1,2,3))
+#head(MedianABV1)
+#Merge BrewCount and state_name_abb table with state.abbState
+BeerMedianABV_M<-merge(data.frame(MedianABV1),data.frame(state_name_abb),by.x="V2",by.y="V2")
+#view the merger
+#head(BeerMedianABV_M)
+#Change all charater in state name to lower cast as map file use lower case for statename
+BeerMedianABV_M<-within(BeerMedianABV_M,l_state<-tolower(V1))
+#verify the converstion
+#head(BeerMedianABV_M)
+#head(states)
+#merge the BrewCount_M file with state map files using state full name
+US_State_Brew_ABV<-merge(data.frame(us_map("states")),data.frame(BeerMedianABV_M),by.x = "full",by.y="V1")
+#Verify the merger
+#head(US_State_Brew_ABV)
+#str(US_State_Brew_ABV)
+#str(states)
+#View(US_State_Brew_ABV)
+
+#write.csv(US_State_Brew_ABV,file = "C:\\Paritosh\\SMU\\6306 Doing Data Science\\Case_Study_1\\CaseStudy1_Matt_Paritosh\\ABV1.csv")
+#ABV<-read.csv("ABV.csv")
+#ABV<-data.frame(ABV)
+#head(us_map("states"))
+#head(US_Statw)
+#Plot the map
+#comment out guide so we get the legent
+state_brew_ABV_map<-States_Map  +
+  geom_polygon(data = US_State_Brew_ABV,aes(x = long, y = lat, fill = Freq , group = group),color = "white") +
+  # guides(fill=FALSE) +
+  ggtitle("Median Alcohol Content (ABV)")
+theme_void()
+#state_brew_ABV_map 
+#put map with log scale
+state_brew_ABV_map1<-state_brew_ABV_map+
+  scale_fill_gradientn(colours = rev(rainbow(7)))
+guides(fill=TRUE)#,
+breaks = c(2, 4, 10, 100, 1000, 10000)#,
+trans = "log10"
+
+state_brew_ABV_map1
+
+```
