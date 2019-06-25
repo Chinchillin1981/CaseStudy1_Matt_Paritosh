@@ -14,16 +14,32 @@ library(data.table)
 library(ggplot2)
 library(webshot)
 library(kableExtra)
-library(maps)
-library(mapdata)
 library(tidyverse)
 library(stringr)
-library(dplyr)
-library(viridis)
+library(usmap)
 ```
+### Executive Summary
+
+The following report is an analysis of craft beer and breweries in the United States. The analysis was based on a sample data of 2410 beers and 558 brewries. The analysis below covers the following:
+
+* How many breweries there are per state.
+* An analysis that identifies missing values from the data sets provided.
+* The computed median alcohol content and median bitterness unit for each state.
+* Identification of the beer with the highest alchol by volume (ABV) and the most bitter beer (IBU).
+* Summary statistics of alchol by volume (ABV).
+* Analysis of alchol content vs bitterness to identify any relationship between the two.
+
+Observations:
+There are an average of 10.9 craft breweries per-state in the US. Colorado leads with 47 brewries including Upslope Brewing Company in Boulder which produces the beer with the highest alcohol content "Lee Hill Series Vol. 5" a Belgian Style Quadrupel Ale that's 13% alcohol by volume. The  average ABV of craft beers represented in this data is .059 or 6% alchol by volume. Oregon is home to the bitterest beer "Bitter Bitch Imperial IPA" produced by Astoria Brewing Company it's IBU is 138. There also seems to be a relationship between alcohol content and bitterness. The analysis below shows that in general the higher the alcohol content the higher the IBU or bitterness.
+
+Please refer any questions or comments to analysis team of Matthew Chinchilla and Paritosh Rai.
 
 
-#### Number of Breweries in each state. Note the list is in a scroll box, scroll to see more values.
+
+
+
+#### Number of Breweries in each state. 
+###### <i>Note the list is in a scroll box, scroll to see more values.</i>
 ```{r}
 #Read in Brewries.csv file
 brewires<-read.csv("Brewries.csv")
@@ -42,28 +58,31 @@ kable(BrewCount) %>% kable_styling(bootstrap_options = c("striped", "hover", "co
 
 ```
 
-#### Merging the Brewires data with the Beers data into a new table "beers_brew" will allow us to do more detailed analysis below are the first and last six values of our new table.
+#### The two data sources beers.csv and brewries.csv were merged together for analysis purposes. The new data set was named beers_brew
 ```{r}
-#read.csv("beers.csv")
+#read in the beers file
 beers<-read.csv("beers.csv")
 
-#Merge beers and Brewieres data frames into beers_brew
+#merge the beers and brewries files
 beers_brew<-merge(data.frame(beers),data.frame(brewires), by.x = "Brewery_id",by.y="Brew_ID")
 
-#Update Column names
-names(beers_brew) <- c("Brewery_ID", "Beer", "Beer_ID", "ABV", "IBU", "Beer_Style", "Ounces", "Brewery_Name", "City", "State")
-
-#First six observation
-(head(beers_brew) %>% kable() %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")))
+#Rename the columns in beers_brew
+names(beers_brew) <- c("Brewery_ID", "Beer", "Beer_ID", "ABV", "IBU", "Beer_Syle", "Ounces", "Brewry_Name", "City", "State")
 ```
 
+#### The First six observation of beers_brew.
+```{r}
+head(beers_brew) %>% kable(row.names = FALSE) %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+```
+
+#### The last six observation of beers_brew.
 ```{r}
 #Last six observation
 tail(beers_brew) %>% kable(row.names = FALSE) %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
 ```
 
 
-#### We need to find any null/NA data in our new table the calculation below tells us how many observations are null/NA in each variable.
+#### The analysis below shows the number of missing values for each variable in our complete data set beers_brew.
 ```{r}
 #Total number of NA's in each column
 totalna <-colSums(is.na(beers_brew))
@@ -72,9 +91,7 @@ totalna <-colSums(is.na(beers_brew))
 #Create table of NA Vales
 totalna %>% kable(col.names = c("Number_of_NA")) %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"), full_width = FALSE, position = "left")
 ```
-
-
-#### The pie chart below shows the number of NA values 
+#### The pie chart below was created to help visualize the missing values.
 ```{r}
 totalna1<-data.frame(totalna)
 totalna1 <- cbind(Row.Names = rownames(totalna1), totalna1)
@@ -118,14 +135,42 @@ MedianABV <- as.data.frame.table(tapply(ABV$ABV, ABV$State, myFun))
 names(MedianABV) <- c("State","Median_ABV")
 
 #Build a Bar chart to compare the median ABV per-state
-p<-ggplot(MedianABV ,aes(reorder(MedianABV$State,-Median_ABV),Median_ABV, fill= MedianABV$State)) + geom_bar(stat='identity')+ theme(text=element_text(size=10),plot.title = element_text(hjust = 0.5),legend.position="none", axis.text.x = element_text(angle = 90))+ ggtitle("Median ABV Per-State") + labs(x = "State", y = "ABV")
+p<-ggplot(MedianABV ,aes(reorder(MedianABV$State,-Median_ABV),Median_ABV, fill= MedianABV$State)) + geom_bar(stat='identity')+ theme(text=element_text(size=10),plot.title = element_text(hjust = 0.5),legend.position="none", axis.text.x = element_text(angle = 90))+ ggtitle("Median ABV Per-State") + labs(x = "State", y = "ABV")+ scale_color_gradient(low = "blue", high = "green")
 
 p
 ```
 
+#### The following map shows the States with the heighest median ABV
+```{r}
+#Load state name csv
+#state_name_abb<-read.csv("https://raw.githubusercontent.com/Chinchillin1981/CaseStudy1_Matt_Paritosh/a5e17a7b0820dcee785e006653d05874465fc2e7/state_name_abb.csv", header=FALSE,sep=",")
+                         
+#MedianABV1<-MedianABV
+
+#MedianABV1<-data.frame(MedianABV1)
+
+#MedianABV1<-within(MedianABV1,V2<- substring(MedianABV1$Var1,2,3))
+
+#BeerMedianABV_M<-merge(data.frame(MedianABV1),data.frame(state_name_abb),by.x="V2",by.y="V2")
+
+#BeerMedianABV_M<-within(BeerMedianABV_M,l_state<-tolower(V1))
+
+#US_State_Brew_ABV<-merge(data.frame(us_map("states")),data.frame(BeerMedianABV_M),by.x = "full",by.y="V1")
+
+#state_brew_ABV_map<-States_Map  +
+  #geom_polygon(data = US_State_Brew_ABV,aes(x = long, y = lat, fill = Freq , group = group),color = "white") +
+  # guides(fill=FALSE) +
+ # ggtitle("Median Alcohol Content (ABV)")
+#theme_void()
+
+#state_brew_ABV_map1<-state_brew_ABV_map + scale_fill_gradientn(colours = rev(rainbow(7))), guides(fill=TRUE))
+
+#state_brew_ABV_map1
+```
 
 
-#### The median IBU bitterness for each craft beer in each state and the District of Columbia is in the bar chart below. Note SD is not listed because the IBU data was not available for the beers in this state.
+#### The median IBU bitterness for each craft beer in each state and the District of Columbia is in the bar chart below. 
+<i>Note SD is not listed because the IBU data was not available for the beers in this state.</i>
 ```{r}
 #Create a new data frame IBU. 
 IBU <- data.frame(beers_brew$Beer_ID, beers_brew$State, beers_brew$IBU)
@@ -156,7 +201,7 @@ p1
 
 
 
-#### Colorado is the state with the beer with the highest alcohol content in the US. Lee Hill Vol.5 - Belgian Style Quadrupel Ale has an ABV of .128 (13% alcohol content). This beer is prodcuced by Uposlope Brewing Company.
+#### Colorado is the state with the beer with the highest alcohol content in the US. Lee Hill Vol.5 - Belgian Style Quadrupel Ale has an ABV of .128 (13% alcohol content). This beer is prodcuced by Uposlope Brewing Company in Boulder.
 ```{r}
 #View The row for maximum ABV value (Alcohol content)
 beers_brew[which.max(beers_brew$ABV),] %>% kable(row.names = FALSE) %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
@@ -165,14 +210,14 @@ beers_brew[which.max(beers_brew$ABV),] %>% kable(row.names = FALSE) %>% kable_st
 
 
 
-#### Orgon is the state with the Bitterest Beer "Bitter Bitch Imperial IPA" this beer is 138 IBU and an American Double/Imperial IPA style. The brewery that produces this beer is Astroria Brewing Company.
+#### Orgon is home to the Bitterest Beer "Bitter Bitch Imperial IPA" this beer has an IBU of 138. It's an American Double/Imperial IPA style. The brewery that produces this beer is Astroria Brewing Company located in Astoria.
 ```{r}
 #View the row with max IBU value (bitterness)
 beers_brew[which.max(beers_brew$IBU),] %>% kable(row.names = FALSE) %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
 ```
  
 
-#### Summary statistics for Alcoholic content. 
+#### Below are summary statistics for Alcoholic content. 
 ```{r, message= FALSE}
 #Summarise the ABV variable in the beer_brew table
 ABVSummary <- summary(beers_brew$ABV)
@@ -181,16 +226,11 @@ ABVSummary <- summary(beers_brew$ABV)
 as.array(ABVSummary) %>% kable(col.names = c("Measure","Value")) %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"), full_width = FALSE, position = "left")
 ```
 
-#### The scatter plot below shows the relationship between alcohol content (ABV) in each beer and bitterness. As you can see the plot shows that the higher alcohol content the more likely the beer is to have a higher bitterness (IBU)
+#### The scatter plot below shows the relationship between alcohol content (ABV) in each beer and bitterness. The plot seems to indicate that beers high in alchol are generally high on the IBU scale as well.
+<i>Note: 1005 observations were missing either IBU or ABV values and are not represented in the plot below. </i>
 ```{r}
-#Create an new dataframe ABV_IBU that consists of Beer ID, ABV, IBU, Beer Style, Ounces
-ABV_IBU <- data.frame(beers_brew$Beer_ID,beers_brew$ABV, beers_brew$IBU, beers_brew$Beer_Style, beers_brew$Ounces)
-
-#rename the columns of the new data frame to "Beer_ID", "ABV", "IBU"
-names(ABV_IBU) <- c("Beer_ID", "ABV", "IBU", "Beer_Style","Ounces")
-
 #Create a scatter plot 
-p3 <- ggplot(ABV_IBU, aes(ABV,IBU, color = IBU)) + geom_point(aes(size = Ounces)) + labs(title = "Alchol Content vs Bitterness", x = "Alcohol Content (ABV)", y = "Bitterness (IBU)")
+p3 <- ggplot(beers_brew, aes(ABV,IBU, color = IBU)) + geom_point(aes(size = Ounces)) + labs(title = "Alchol Content vs Bitterness", x = "Alcohol Content (ABV)", y = "Bitterness (IBU)")
 
 #Add the Color gradient scale blue = low Bitterness, high = high bitterness
 p4 <-p3 + scale_color_gradient(low = "blue", high = "green")
