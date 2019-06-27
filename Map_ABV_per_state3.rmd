@@ -77,7 +77,7 @@ US_State_Brew_ABV<-merge(data.frame(us_map("states")),data.frame(BeerMedianABV_M
 state_brew_ABV_map<-States_Map  +
   geom_polygon(data = US_State_Brew_ABV,aes(x = long, y = lat, fill = Freq , group = group),color = "white") +
   # guides(fill=FALSE) +
-  ggtitle("Median Alcohol Content (ABV)")
+  ggtitle("Median Alcohol Content (ABV)")+
 theme_void()
 
 #put map with log scale
