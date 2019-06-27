@@ -290,7 +290,6 @@ p1
 
 ```{r message=FALSE, warning=FALSE, include=TRUE}
 
-
 #read.csv("beers.csv")
 beers<-read.csv("beers.csv")
 #Read in Brewries.csv file
