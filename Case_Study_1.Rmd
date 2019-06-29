@@ -29,7 +29,7 @@ The following report is an analysis of craft beer and breweries in the United St
 * Summary statistics of alchol by volume (ABV).
 * Analysis of alchol content vs bitterness to identify any relationship between the two.
 
-Observations:
+<b>Observations:</b><br/>
 There are an average of 10.9 craft breweries per-state in the US. Colorado leads with 47 brewries including Upslope Brewing Company in Boulder which produces the beer with the highest alcohol content "Lee Hill Series Vol. 5" a Belgian Style Quadrupel Ale that's 13% alcohol by volume. The  average ABV of craft beers represented in this data is .059 or 6% alchol by volume. Oregon is home to the bitterest beer "Bitter Bitch Imperial IPA" produced by Astoria Brewing Company it's IBU is 138. There also seems to be a relationship between alcohol content and bitterness. The analysis below shows that in general the higher the alcohol content the higher the IBU or bitterness.
 
 Please refer any questions or comments to analysis team of Matthew Chinchilla and Paritosh Rai.
@@ -58,7 +58,7 @@ kable(BrewCount) %>% kable_styling(bootstrap_options = c("striped", "hover", "co
 
 ```
 
-```{r, message = FALSE}
+```{r}
 #plot us map using states file 
 #keep fill value to "0" so fill values remains numerical
 data(usmap)
@@ -100,7 +100,7 @@ state_brew_map1
 
 ```
 
-#### The two data sources beers.csv and brewries.csv were merged together for analysis purposes. The new data set was named beers_brew
+#### The two data sources beers.csv and brewries.csv were merged together for analysis purposes. The new data set is called beers_brew.
 ```{r}
 #read in the beers file
 beers<-read.csv("beers.csv")
@@ -133,6 +133,8 @@ totalna <-colSums(is.na(beers_brew))
 #Create table of NA Vales
 totalna %>% kable(col.names = c("Number_of_NA")) %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"), full_width = FALSE, position = "left")
 ```
+
+
 #### The pie chart below was created to help visualize the missing values.
 ```{r}
 totalna1<-data.frame(totalna)
@@ -155,6 +157,7 @@ ggplot(totalna1, aes(x = "", y = Number_of_NA, fill =Variables)) +
   ggtitle("Number of NA")+
   theme_void()
 ```
+
 
 #### The median alcholic content for each craft beer in each state and the District of Columbia is in the bar chart below. 
 ```{r}
@@ -214,14 +217,11 @@ p1
 ```
 
 
-
 #### Colorado is the state with the beer with the highest alcohol content in the US. Lee Hill Vol.5 - Belgian Style Quadrupel Ale has an ABV of .128 (13% alcohol content). This beer is prodcuced by Uposlope Brewing Company in Boulder.
 ```{r}
 #View The row for maximum ABV value (Alcohol content)
 beers_brew[which.max(beers_brew$ABV),] %>% kable(row.names = FALSE) %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
 ```
-
-
 
 
 #### Orgon is home to the Bitterest Beer "Bitter Bitch Imperial IPA" this beer has an IBU of 138. It's an American Double/Imperial IPA style. The brewery that produces this beer is Astroria Brewing Company located in Astoria.
@@ -239,6 +239,7 @@ ABVSummary <- summary(beers_brew$ABV)
 #Create table
 as.array(ABVSummary) %>% kable(col.names = c("Measure","Value")) %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"), full_width = FALSE, position = "left")
 ```
+
 
 #### The scatter plot below shows the relationship between alcohol content (ABV) in each beer and bitterness. The plot seems to indicate that beers high in alchol are generally high on the IBU scale as well.
 <i>Note: 1005 observations were missing either IBU or ABV values and are not represented in the plot below. </i>
