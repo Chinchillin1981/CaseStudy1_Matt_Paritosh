@@ -1,6 +1,6 @@
 ---
 title: "Beers and Breweries an analysis of US Craft Beers"
-author: "Matt Chinchilla, Paritosh Ria"
+author: "Matt Chinchilla, Paritosh Rai"
 date: "6/15/2019"
 output: html_document
 Keep_md: TRUE
