@@ -353,7 +353,7 @@ US_State_Brew_IBU<-data.frame(US_State_Brew_IBU)
 state_brew_IBU_map<-States_Map  +
   geom_polygon(data = US_State_Brew_IBU,aes(x = long, y = lat, fill = Median_IBU , group = group),color = "white") +
   #guides(fill=FALSE) +
-  ggtitle("International Bitterness Unit (IBU)")+ 
+  ggtitle("Median International Bitterness Unit (IBU)")+ 
 theme_void()
 #state_brew_IBU_map 
 #put map with log scale
