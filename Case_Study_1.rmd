@@ -404,3 +404,10 @@ p4 <-p3 + scale_color_gradient(low = "blue", high = "green")
 
 p4
 ```
+
+
+#### Links to Youtube Presentation Video's
+
+Matt Chinchilla - https://youtu.be/1ajOqgPv7CM
+
+Paritosh Rai - https://www.youtube.com/watch?v=k3RoraALpDM&t=15s
